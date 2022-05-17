@@ -11,7 +11,7 @@ import csv
 import json
 import numpy as np
 import pandas as pd
-
+import sys
 
 import pyspark
 from pyspark.sql import SparkSession
@@ -98,12 +98,5 @@ output = df_19_03_new.join(df_19_10_new,'poi_cbg', 'outer')
 output = output.join(df_20_03_new, 'poi_cbg', 'outer')
 output = output.join(df_20_10_new, 'poi_cbg', 'outer')
 output = output.orderBy("poi_cbg")
-
-output.to_csv('input',sep='\t',index=False)
-
-if __name__=='__main__':
-  
-  sc = SparkContext()
-  sc.textFile('input', use_unicode=True) \
-        .saveAsTextFile('output')
+output.write.option("header",True).csv(sys.argv[1])
 
