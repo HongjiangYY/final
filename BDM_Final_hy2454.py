@@ -36,7 +36,7 @@ spark = SparkSession.builder.appName('pandasToSparkDF').getOrCreate()
 nyc_supermarkets = spark.createDataFrame(nyc_supermarkets)
 
 
-weekly_patterns_nyc = spark.read.csv('weekly-patterns-nyc-2019-2020.csv', header = True, escape = '"')
+weekly_patterns_nyc = spark.read.csv('/tmp/bdm/weekly-patterns-nyc-2019-2020/*', header = True, escape = '"')
 
 ## filter out places that not belong to nyc_supermarkets for weekly_patterns_nyc
 weekly_patterns_nyc2 = weekly_patterns_nyc.join(nyc_supermarkets, weekly_patterns_nyc['placekey'] == nyc_supermarkets['safegraph_placekey'],'left')                                .dropna(subset = ['safegraph_placekey'])                                .select('placekey','date_range_start','date_range_end','poi_cbg','visitor_home_cbgs')
