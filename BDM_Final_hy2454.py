@@ -24,11 +24,13 @@ from shapely.geometry import Point
 
 
 # read nyc_cbg_centroids.csv file and make a nyc cbg dictionary, use to find the lon and lat
+t = Transformer.from_crs(4326, 2263)
 nyc_cbg_centroids = pd.read_csv('nyc_cbg_centroids.csv')
+nyc_cbg_centroids['lat'] = t.transform(nyc_cbg_centroids['latitude'], nyc_cbg_centroids['longitude'])[0]
+nyc_cbg_centroids['lon'] = t.transform(nyc_cbg_centroids['latitude'], nyc_cbg_centroids['longitude'])[1]
 nyc_cbg_centroids['cbg_fips'] = nyc_cbg_centroids['cbg_fips'].astype(str)
 nyc_cbg_centroids.set_index(["cbg_fips"], inplace=True)
 nyc_cbg_centroids = nyc_cbg_centroids.transpose()
-nyc_cbg_centroids.head()
 
 # read nyc_supermarkets
 nyc_supermarkets = pd.read_csv('nyc_supermarkets.csv')
@@ -48,7 +50,7 @@ def cbg(poi_cbg, visitor_home_cbgs):
   for k,v in json.loads(visitor_home_cbgs).items():    
     if nyc_cbg_centroids.get(k,None) is not None:
       num_visitors += v
-      total_distance += Point(nyc_cbg_centroids.get(k, None)[0], nyc_cbg_centroids.get(k, None)[1]).distance(Point(nyc_cbg_centroids.get(poi_cbg, None)[0], nyc_cbg_centroids.get(poi_cbg, None)[1]))/5280
+      total_distance += Point(nyc_cbg_centroids.get(k, None)[2], nyc_cbg_centroids.get(k, None)[3]).distance(Point(nyc_cbg_centroids.get(poi_cbg, None)[2], nyc_cbg_centroids.get(poi_cbg, None)[3]))/5280
   return [total_distance, float(num_visitors)]
 
 udfExpand = F.udf(cbg,T.ArrayType(T.FloatType()))
